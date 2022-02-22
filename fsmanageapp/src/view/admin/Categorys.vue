@@ -18,7 +18,7 @@
                     <v-card-text>
                         <v-row class="mt-5">
                             <v-col cols="12" sm="6" md="6" class="pt-3">
-                                <v-text-field label="Name category" type="text" outlined v-model="category.Name"></v-text-field>
+                                <v-text-field label="Name category" type="text" outlined v-model="category.name"></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="6">
                                 <span>Status:</span>
@@ -38,8 +38,8 @@
                         </v-row>
                         <v-row>
                             <v-col cols="12" class="text-right">
-                                <v-btn class="gray" v-if="this.action != 1">EDIT</v-btn>
-                                <v-btn class="gray" @click="addNewCategory" v-else>ADD</v-btn>
+                                <v-btn class="gray" v-if="this.action != 1" @click="updateCategory(category.id)">EDIT</v-btn>
+                                <v-btn class="gray" @click="createNewCategory" v-else>ADD</v-btn>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -87,6 +87,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
      data(){
          return{
@@ -95,29 +96,29 @@ export default {
                 },
             headers: [ 
                 {text:'#',value: 'id',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Name",value: 'Name',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Date Created",value: 'fecha',align: 'center', class:'grey white--text px-0 mx-0'},
+                { text:"Name",value: 'name',align: 'center', class:'grey white--text px-0 mx-0'},
+                { text:"Date Created",value: 'fecha_created',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text:"status",value: 'estado',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text: 'Actions', value: 'actions',  align: 'center', class:'grey white--text px-0 mx-0'}
             ],
             search:'',
 
             Categorys:[
-                {id:1,Name:"Restaurante",fecha:"2021-05-18",status:true},
-                {id:2,Name:"Shop",fecha:"2021-05-08",status:true},
-                {id:3,Name:"Ferreteria",fecha:'2021-05-18',status:false},
-                {id:4,Name:"Servicios Multiples",fecha:'2021-05-18',status:true},
-                {id:5,Name:"Farmacia",fecha:'2021-05-18',status:true},
-                {id:6,Name:"Panaderia",fecha:'2021-05-18',status:true},
-                {id:7,Name:"Supermarket",fecha:'2021-05-18',status:false},
+                // {id:1,Name:"Restaurante",fecha:"2021-05-18",status:true},
+                // {id:2,Name:"Shop",fecha:"2021-05-08",status:true},
+                // {id:3,Name:"Ferreteria",fecha:'2021-05-18',status:false},
+                // {id:4,Name:"Servicios Multiples",fecha:'2021-05-18',status:true},
+                // {id:5,Name:"Farmacia",fecha:'2021-05-18',status:true},
+                // {id:6,Name:"Panaderia",fecha:'2021-05-18',status:true},
+                // {id:7,Name:"Supermarket",fecha:'2021-05-18',status:false},
             ],
 
             modal_category:false,
             action:1,
 
             category:{
-                Name:'',
-                fecha:'',
+                name:'',
+                fecha_created:'',
                 status:false
             }
          }
@@ -128,9 +129,36 @@ export default {
              return this.action === 1 ? 'Create' : 'Edit'
          }
      },
+     mounted() {
+         this.getAllCategorys()
+     },
 
      methods: {
-         addNewCategory(){
+
+         async getAllCategorys(){
+             try{
+                 const response = await axios.get('http://localhost:5000/api/categorys')
+                 console.log(response.data)
+                 this.Categorys = response.data
+             }catch(e){
+                 console.log(e)
+             }
+         },
+
+        async createNewCategory(){
+            const fecha = await this.createDate()
+             this.category.fecha_created = fecha
+             try{
+                 const response = await axios.post('http://localhost:5000/api/categorys',this.category)
+                 console.log(response.data)
+                 await this.getAllCategorys()
+                 this.closeModal()
+             }catch(e){
+                 console.log(e)
+             }
+         },
+         
+         createDate(){
              let dateActual = new Date()
              let day = dateActual.getDay()
              let month = dateActual.getMonth()
@@ -138,14 +166,7 @@ export default {
              day  = ('0' + day).slice(-2);
              month   = ('0' + month).slice(-2);
              let Fecha  = `${year}-${month}-${day}`; 
-
-             this.Categorys.push({
-                 id:this.Categorys.length+1,
-                 Name:this.category.Name,
-                 fecha:Fecha,
-                 status:this.category.status
-             })
-             this.closeModal()
+             return Fecha;
          },
 
          editedItem(item){
@@ -154,9 +175,21 @@ export default {
              this.modal_category = true
          },
 
+        async  updateCategory(id){
+            try{
+                const response = await axios.put(`http://localhost:5000/api/categorys/${id}`,this.category)
+                if(response.status === 200){
+                    await this.getAllCategorys()
+                    this.closeModal()
+                }
+            }catch(e){
+                console.log(e)
+            }
+        },
+
          closeModal(){
              this.action = 1
-            this.category.Name = '', this.category.status = false
+            this.category.name = '', this.category.status = false
             this.modal_category = false
          }
      },

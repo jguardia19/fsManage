@@ -58,7 +58,7 @@
                      </v-list-group>
                     
                     <!-- accesos para el user -->
-                    <v-list-item to="/Categorias" color="white" >
+                    <v-list-item to="/Categorys" color="white" >
                         <v-list-item-icon>
                           <v-icon>mdi-shape-outline</v-icon>
                         </v-list-item-icon>
@@ -70,11 +70,29 @@
                         </v-list-item-icon>
                         <v-list-item-title >Proveedores</v-list-item-title>
                     </v-list-item>
-                     <v-list-item to="/Ventas" color="white" >
+                    <v-list-item to="/clientes" color="white" >
+                        <v-list-item-icon>
+                          <v-icon>mdi-account</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title >Clientes</v-list-item-title>
+                    </v-list-item>
+                     <v-list-item to="/Productos" color="white" >
                         <v-list-item-icon>
                           <v-icon>mdi-shopping</v-icon>
                         </v-list-item-icon>
                         <v-list-item-title >Productos</v-list-item-title>
+                    </v-list-item>
+                    <v-list-item to="/ventas" color="white" >
+                        <v-list-item-icon>
+                          <v-icon>mdi-cart</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title >Ventas</v-list-item-title>
+                    </v-list-item>
+                     <v-list-item to="/gastos" color="white" >
+                        <v-list-item-icon>
+                          <v-icon>mdi-cash-fast</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title >Gastos</v-list-item-title>
                     </v-list-item>
                     <v-list-item to="/CuentasPagar" color="white" >
                         <v-list-item-icon>
@@ -87,12 +105,6 @@
                           <v-icon>mdi-cash-register</v-icon>
                         </v-list-item-icon>
                         <v-list-item-title >Cuentas por cobrar</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item to="/productos" color="white" >
-                        <v-list-item-icon>
-                          <v-icon>mdi-cart</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-title >Ventas</v-list-item-title>
                     </v-list-item>
                     <v-list-item to="/settings" color="white" >
                         <v-list-item-icon>

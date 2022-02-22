@@ -18,7 +18,7 @@
                     <v-card-text>
                         <v-row class="mt-5">
                             <v-col cols="12" sm="6" md="6" class="pt-3">
-                                <v-text-field label="Name category" type="text" outlined v-model="estado.Name"></v-text-field>
+                                <v-text-field label="Name category" type="text" outlined v-model="estado.name"></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="6">
                                 <span>Status:</span>
@@ -46,8 +46,8 @@
                         </v-row>
                         <v-row>
                             <v-col cols="12" class="text-right">
-                                <v-btn class="gray" v-if="this.action != 1">EDIT</v-btn>
-                                <v-btn class="gray" @click="addNewStatus" v-else>ADD</v-btn>
+                                <v-btn class="gray" v-if="this.action != 1" @click="updateStatus(estado.id)">EDIT</v-btn>
+                                <v-btn class="gray" @click="createNewStatus" v-else>ADD</v-btn>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -72,7 +72,7 @@
                             </v-toolbar>
                     </template>
                     <template v-slot:item.Nombre="{ item }">
-                        <v-chip :style="{background: item.color, color:'#fff'}"  label>{{item.Name}} </v-chip>   
+                        <v-chip :style="{background: item.color, color:'#fff'}"  label>{{item.name}} </v-chip>   
                     </template>
                     <template v-slot:item.estado="{ item }">
                         <v-chip color="success" v-if="item.status === true" label>Active</v-chip> 
@@ -98,6 +98,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
      data(){
          return{
@@ -107,24 +108,19 @@ export default {
             headers: [ 
                 {text:'#',value: 'id',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text:"Name",value: 'Nombre',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Date Created",value: 'fecha',align: 'center', class:'grey white--text px-0 mx-0'},
+                { text:"Date Created",value: 'fecha_created',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text:"status",value: 'estado',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text: 'Actions', value: 'actions',  align: 'center', class:'grey white--text px-0 mx-0'}
             ],
             search:'',
-            Status:[
-                {id:1,Name:"New",fecha:"2021-05-18",color:'#0376A3',status:true},
-                {id:2,Name:"Test",fecha:"2021-05-08",color:'#08956A',status:true},
-                {id:3,Name:"Activo",fecha:'2021-05-18',color:'#0EE905',status:true},
-                {id:4,Name:"Vencio",fecha:'2021-05-18',color:'#626566',status:false},
-            ],
+            Status:[],
 
             modal_status:false,
             action:1,
 
             estado:{
-                Name:'',
-                fecha:'',
+                name:'',
+                fecha_created:'',
                 status:false,
                 color:'#1B12AF'
             }
@@ -136,9 +132,36 @@ export default {
              return this.action === 1 ? 'Create' : 'Edit'
          }
      },
+     mounted() {
+         this.getAllStatus()
+     },
 
      methods: {
-         addNewStatus(){
+
+         async getAllStatus(){
+             try{
+                 const response = await axios.get('http://localhost:5000/api/status');
+                 console.log(response.data)
+                 this.Status = response.data
+             }catch(e){
+                 console.log(e)
+             }
+         },
+
+         async createNewStatus(){
+             let fecha = await this.createDate()
+             this.estado.fecha_created = fecha
+             try{   
+                 const response = await axios.post('http://localhost:5000/api/status',this.estado)
+                    await this.getAllStatus()
+                    this.closeModal()
+                     console.log(response)
+             }catch(e){
+                 console.log(e)
+             }
+         },
+
+        createDate(){
              let dateActual = new Date()
              let day = dateActual.getDay()
              let month = dateActual.getMonth()
@@ -146,15 +169,7 @@ export default {
              day  = ('0' + day).slice(-2);
              month   = ('0' + month).slice(-2);
              let Fecha  = `${year}-${month}-${day}`; 
-
-             this.Status.push({
-                 id:this.Status.length+1,
-                 Name:this.estado.Name,
-                 fecha:Fecha,
-                 color:this.estado.color,
-                 status:this.estado.status
-             })
-             this.closeModal()
+             return Fecha
          },
 
          editedItem(item){
@@ -163,9 +178,20 @@ export default {
              this.modal_status = true
          },
 
+         async updateStatus(id){
+             try{
+                 const response = await axios.put(`http://localhost:5000/api/status/${id}`, this.estado)
+                 console.log(response)
+                 await this.getAllStatus()
+                 await this.closeModal()
+             }catch(e){
+                 console.log(e)
+             }
+         },
+
          closeModal(){
              this.action = 1
-            this.estado.Name = '', this.estado.status = false
+            this.estado.name = '', this.estado.status = false
             this.modal_status = false
          }
      },

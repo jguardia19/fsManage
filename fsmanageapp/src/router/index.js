@@ -59,6 +59,70 @@ Vue.use(Router)
           layout : 'dasboard-layout'
         },
         component: () => import('../view/admin/Users.vue')
+      },
+      {
+        path:'/categorys',
+        name:'categorys',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/Categorys.vue')
+      },
+      {
+        path:'/proveedores',
+        name:'proveedores',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/Proveedores.vue')
+      },
+      {
+        path:'/clientes',
+        name:'clientes',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/Clientes.vue')
+      },
+      {
+        path:'/productos',
+        name:'productos',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/Productos.vue')
+      },
+      {
+        path:'/ventas',
+        name:'ventas',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/Ventas.vue')
+      },
+      {
+        path:'/gastos',
+        name:'Gastos',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/Gastos.vue')
+      },
+      {
+        path:'/cuentasPagar',
+        name:'cuentasPagar',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/CuentasPagar.vue')
+      },
+      {
+        path:'/cuentasCobrar',
+        name:'cuentasCobrar',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/CuentasCobrar.vue')
       }
    
   ]

@@ -1,15 +1,14 @@
 <template>
-     <v-row class="mt-8 px-5"> 
-         <v-col cols="12">
+   <v-row class="mt-8 px-5"> 
+        <v-col cols="12">
 
-             
-            <!-- modal for type users-->
-            <v-dialog v-model="modal_type_user" max-width="600">
+                    <!-- modal for categories -->
+            <v-dialog v-model="modal_category" max-width="600">
                 <v-card>
                     <v-card-title class="grey white--text">
                         <v-row>
                             <v-col cols="9">
-                                <h3> {{titleForm}} type user</h3>
+                                <h3> {{titleForm}} category</h3>
                             </v-col>
                             <v-col cols="3" class="text-right">
                                 <v-btn icon color="white" @click="closeModal"><v-icon>mdi-close-circle</v-icon> </v-btn>
@@ -19,11 +18,11 @@
                     <v-card-text>
                         <v-row class="mt-5">
                             <v-col cols="12" sm="6" md="6" class="pt-3">
-                                <v-text-field label="Name TypeUser" type="text" outlined v-model="TypeUser.name"></v-text-field>
+                                <v-text-field label="Name category" type="text" outlined v-model="category.Name"></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="6">
                                 <span>Status:</span>
-                                 <v-radio-group row v-model="TypeUser.status">
+                                 <v-radio-group row v-model="category.status">
                                 <v-radio
                                     color="success"
                                     label="Active"
@@ -39,18 +38,18 @@
                         </v-row>
                         <v-row>
                             <v-col cols="12" class="text-right">
-                                <v-btn class="gray" v-if="this.action != 1" @click="updateTypeUser(TypeUser.id)">EDIT</v-btn>
-                                <v-btn class="gray" @click="createTypeUser" v-else>ADD</v-btn>
+                                <v-btn class="gray" v-if="this.action != 1">EDIT</v-btn>
+                                <v-btn class="gray" @click="addNewCategory" v-else>ADD</v-btn>
                             </v-col>
                         </v-row>
                     </v-card-text>
                 </v-card>
             </v-dialog>
-            
+
             <!-- table of data -->
              <v-data-table 
                 :headers="headers" 
-                :items="typeUsers" 
+                :items="Categorys" 
                 :footer-props="{'items-per-page-options':[5,10, 15, 30, 50, -1]}"
                 :options="options"
                 class="elevation-6" 
@@ -58,10 +57,10 @@
         
                 <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title>Type Users</v-toolbar-title>
+                            <v-toolbar-title>Categorys</v-toolbar-title>
                                 <v-divider  class="mx-4" inset vertical ></v-divider>
                                 <v-spacer></v-spacer>
-                                <v-btn class="grey" @click="modal_type_user = true" >ADD New +</v-btn>
+                                <v-btn class="grey" @click="modal_category = true" >ADD New +</v-btn>
                             </v-toolbar>
                     </template>
                     <template v-slot:item.estado="{ item }">
@@ -83,13 +82,12 @@
                             </v-tooltip>
                     </template>
             </v-data-table>
-         </v-col>
-      
-     </v-row>
+        </v-col>
+   </v-row>
 </template>
 
 <script>
-import axios from 'axios'
+import {mapState} from 'vuex'
 export default {
      data(){
          return{
@@ -98,83 +96,34 @@ export default {
                 },
             headers: [ 
                 {text:'#',value: 'id',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Name",value: 'name',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Date Created",value: 'fecha_created',align: 'center', class:'grey white--text px-0 mx-0'},
+                { text:"Name",value: 'Name',align: 'center', class:'grey white--text px-0 mx-0'},
+                { text:"Date Created",value: 'fecha',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text:"status",value: 'estado',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text: 'Actions', value: 'actions',  align: 'center', class:'grey white--text px-0 mx-0'}
             ],
             search:'',
 
-            typeUsers:[],
-
-            modal_type_user:false,
+            modal_category:false,
             action:1,
 
-            TypeUser:{
-                name:'',
-                fecha_created:'',
+            category:{
+                Name:'',
+                fecha:'',
                 status:false
             }
          }
      },
-
+ 
      computed:{
          titleForm(){
              return this.action === 1 ? 'Create' : 'Edit'
-         }
-     },
+         },
 
-     mounted() {
-         this.getAllTypeUsers()
+         ...mapState(['Categorys'])
      },
 
      methods: {
-
-         async getAllTypeUsers(){
-             try{
-                 const response = await axios.get('http://localhost:5000/api/typeUser')
-                 this.typeUsers = response.data
-             }catch(error){
-                 console.error(error)
-             }
-         },
-
-         async createTypeUser(){
-             const fecha = await this.createDate()
-             this.TypeUser.fecha_created = fecha
-             try{
-                 const response = await axios.post('http://localhost:5000/api/typeUser',this.TypeUser)
-                 console.log(response.data)
-                 await this.getAllTypeUsers()
-                 this.closeModal()
-             }catch(error){
-                 console.log(error)
-             }
-         },
-
-         async updateTypeUser(id){
-             try{
-                 const response = await axios.put(`http://localhost:5000/api/typeUser/${id}`,this.TypeUser)
-                 console.log(response.data)
-                 await this.getAllTypeUsers()
-                 this.closeModal()
-             }catch(e){
-                 console.log(e)
-             }
-         },
-
-        createDate(){
-            let dateActual = new Date()
-             let day = dateActual.getDay()
-             let month = dateActual.getMonth()
-             let year  = dateActual.getFullYear()
-             day  = ('0' + day).slice(-2);
-             month   = ('0' + month).slice(-2);
-             let Fecha  = `${year}-${month}-${day}`; 
-             return Fecha;
-        },
-
-         addNewTypeUser(){
+         addNewCategory(){
              let dateActual = new Date()
              let day = dateActual.getDay()
              let month = dateActual.getMonth()
@@ -183,25 +132,25 @@ export default {
              month   = ('0' + month).slice(-2);
              let Fecha  = `${year}-${month}-${day}`; 
 
-             this.typeUsers.push({
-                 id:this.typeUsers.length+1,
-                 Name:this.TypeUser.Name,
+             this.Categorys.push({
+                 id:this.Categorys.length+1,
+                 Name:this.category.Name,
                  fecha:Fecha,
-                 status:this.TypeUser.status
+                 status:this.category.status
              })
              this.closeModal()
          },
 
          editedItem(item){
-             this.TypeUser = Object.assign({},item)
+             this.category = Object.assign({},item)
              this.action = 0
-             this.modal_type_user = true
+             this.modal_category = true
          },
 
          closeModal(){
              this.action = 1
-            this.TypeUser.name = '', this.TypeUser.status = false
-            this.modal_type_user = false
+            this.category.Name = '', this.category.status = false
+            this.modal_category = false
          }
      },
 }
