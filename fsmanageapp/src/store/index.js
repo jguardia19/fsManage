@@ -3,7 +3,20 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
+//modules
+import admin from './modules/admin'
+import categorys from './modules/categorys'
+import proveedores from './modules/proveedores'
+import clientes from './modules/clientes'
+
 export default new Vuex.Store({
+
+    modules:{
+        admin,
+        categorys,
+        proveedores,
+        clientes
+    },
 
     state:{
         Categorys:[
@@ -12,13 +25,6 @@ export default new Vuex.Store({
             {id:3,Name:"Pantalones",fecha:'2021-05-18',status:false},
             {id:4,Name:"Perfumes",fecha:'2021-05-18',status:true},
             {id:5,Name:"Cinturones",fecha:'2021-05-18',status:true}
-        ],
-        Proveedores:[
-            {id:1,Name:"Shop millenium c.a",rif:"11111111",direccion:"av, san francisco , caracas",phone:"424584563",fecha:"2021-05-18",status:true},
-            {id:2,Name:"Jennifer confeccion c.a",rif:"11111111",direccion:"av, san francisco , caracas",phone:"424584563",fecha:"2021-05-08",status:true},
-            {id:3,Name:"Tiendas Tinny's c.a",rif:"11111111",direccion:"av, san francisco , caracas",phone:"424584563",fecha:'2021-05-18',status:false},
-            {id:4,Name:"Lisys shop c.a",rif:"11111111",direccion:"av, san francisco , caracas",phone:"424584563",fecha:'2021-05-18',status:true},
-            {id:5,Name:"Otro",rif:"11111111",direccion:"av, san francisco , caracas",phone:"424584563",fecha:'2021-05-18',status:true}
         ],
         Clientes:[
             {id:1,Name:"Maria Alonso",cedula :"14785458",direccion:"av, san francisco , caracas",phone:"424584563",fecha:"2021-05-18",status:true},

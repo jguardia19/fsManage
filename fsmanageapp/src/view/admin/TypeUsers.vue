@@ -3,7 +3,7 @@
          <v-col cols="12">
 
              
-            <!-- modal for type users-->
+                   <!-- modal for type users-->
             <v-dialog v-model="modal_type_user" max-width="600">
                 <v-card>
                     <v-card-title class="grey white--text">
@@ -39,13 +39,22 @@
                         </v-row>
                         <v-row>
                             <v-col cols="12" class="text-right">
-                                <v-btn class="gray" v-if="this.action != 1" @click="updateTypeUser(TypeUser.id)">EDIT</v-btn>
+                                <v-btn class="gray" v-if="this.action != 1" @click="editTypeUser()">EDIT</v-btn>
                                 <v-btn class="gray" @click="createTypeUser" v-else>ADD</v-btn>
                             </v-col>
                         </v-row>
                     </v-card-text>
                 </v-card>
             </v-dialog>
+
+            <!-- modal confirm delete-->
+            <modal-delete
+            :modal="modal_delete"
+            :name_registro="registro_delete"
+            @close="closeModalDelete"
+            @delete="deleteTypeUser"
+            ></modal-delete>
+            
             
             <!-- table of data -->
              <v-data-table 
@@ -64,20 +73,20 @@
                                 <v-btn class="grey" @click="modal_type_user = true" >ADD New +</v-btn>
                             </v-toolbar>
                     </template>
-                    <template v-slot:item.estado="{ item }">
+                    <template v-slot:[`item.estado`] = {item} >
                         <v-chip color="success" v-if="item.status === true" label>Active</v-chip> 
                         <v-chip color="error" v-else label>Inactive</v-chip>     
                     </template>
-                    <template v-slot:item.actions="{ item }">
+                    <template v-slot:[`item.actions`] = {item,index} >
                            <v-tooltip bottom >
                                     <template v-slot:activator="{ on, attrs }">
-                                        <v-btn icon color="gray" @click="editedItem(item)" v-bind="attrs" v-on="on"><v-icon>mdi-border-color</v-icon> </v-btn>
+                                        <v-btn icon color="gray" @click="editedItem(item,index)" v-bind="attrs" v-on="on"><v-icon>mdi-border-color</v-icon> </v-btn>
                                     </template>
                                     <span>Edit</span>
                             </v-tooltip>
                              <v-tooltip bottom >
                                     <template v-slot:activator="{ on, attrs }">
-                                         <v-btn icon color="gray" v-bind="attrs" v-on="on"><v-icon>mdi-delete-forever</v-icon> </v-btn>
+                                         <v-btn icon color="gray"  @click="deleteConfirm(item,index)"  v-bind="attrs" v-on="on" ><v-icon>mdi-delete-forever</v-icon> </v-btn>
                                     </template>
                                     <span>Delete</span>
                             </v-tooltip>
@@ -90,7 +99,10 @@
 
 <script>
 import axios from 'axios'
+import {mapState,mapMutations} from 'vuex'
+import ModalDelete from '../../components/ModalDelete.vue'
 export default {
+  components: { ModalDelete },
      data(){
          return{
                 options: {
@@ -105,12 +117,14 @@ export default {
             ],
             search:'',
 
-            typeUsers:[],
-
             modal_type_user:false,
+            modal_delete:false,
+            registro_delete:'',
             action:1,
+            indice:null,
 
             TypeUser:{
+                id:null,
                 name:'',
                 fecha_created:'',
                 status:false
@@ -121,14 +135,22 @@ export default {
      computed:{
          titleForm(){
              return this.action === 1 ? 'Create' : 'Edit'
-         }
+         },
+
+         ...mapState('admin',['typeUsers'])
      },
 
      mounted() {
-         this.getAllTypeUsers()
+         //this.getAllTypeUsers()
      },
 
      methods: {
+
+        ...mapMutations('admin',['addNewTypeUser','setEditTypeUser','setDeleteTypeUser']),
+
+        NumerRandom(min, max) {
+            return Math.floor((Math.random() * (max - min + 1)) + min);
+        },
 
          async getAllTypeUsers(){
              try{
@@ -140,16 +162,24 @@ export default {
          },
 
          async createTypeUser(){
-             const fecha = await this.createDate()
-             this.TypeUser.fecha_created = fecha
-             try{
-                 const response = await axios.post('http://localhost:5000/api/typeUser',this.TypeUser)
-                 console.log(response.data)
-                 await this.getAllTypeUsers()
-                 this.closeModal()
-             }catch(error){
-                 console.log(error)
-             }
+
+            this.TypeUser.id = await this.NumerRandom(10,100)
+            let date = new Date();
+            let output = String(date.getDate()).padStart(2, '0') + '/' + String(date.getMonth() + 1).padStart(2, '0') + '/' + date.getFullYear();
+            this.TypeUser.fecha_created = output
+
+            this.addNewTypeUser(this.TypeUser)
+            this.closeModal()
+            //  const fecha = await this.createDate()
+            //  this.TypeUser.fecha_created = fecha
+            //  try{
+            //      const response = await axios.post('http://localhost:5000/api/typeUser',this.TypeUser)
+            //      console.log(response.data)
+            //      await this.getAllTypeUsers()
+            //      this.closeModal()
+            //  }catch(error){
+            //      console.log(error)
+            //  }
          },
 
          async updateTypeUser(id){
@@ -163,45 +193,59 @@ export default {
              }
          },
 
-        createDate(){
-            let dateActual = new Date()
-             let day = dateActual.getDay()
-             let month = dateActual.getMonth()
-             let year  = dateActual.getFullYear()
-             day  = ('0' + day).slice(-2);
-             month   = ('0' + month).slice(-2);
-             let Fecha  = `${year}-${month}-${day}`; 
-             return Fecha;
-        },
 
-         addNewTypeUser(){
-             let dateActual = new Date()
-             let day = dateActual.getDay()
-             let month = dateActual.getMonth()
-             let year  = dateActual.getFullYear()
-             day  = ('0' + day).slice(-2);
-             month   = ('0' + month).slice(-2);
-             let Fecha  = `${year}-${month}-${day}`; 
+        //  addNewTypeUser(){
+        //      let dateActual = new Date()
+        //      let day = dateActual.getDay()
+        //      let month = dateActual.getMonth()
+        //      let year  = dateActual.getFullYear()
+        //      day  = ('0' + day).slice(-2);
+        //      month   = ('0' + month).slice(-2);
+        //      let Fecha  = `${year}-${month}-${day}`; 
 
-             this.typeUsers.push({
-                 id:this.typeUsers.length+1,
-                 Name:this.TypeUser.Name,
-                 fecha:Fecha,
-                 status:this.TypeUser.status
-             })
-             this.closeModal()
-         },
+        //      this.typeUsers.push({
+        //          id:this.typeUsers.length+1,
+        //          Name:this.TypeUser.Name,
+        //          fecha:Fecha,
+        //          status:this.TypeUser.status
+        //      })
+        //      this.closeModal()
+        //  },
 
-         editedItem(item){
+         editedItem(item,index){
              this.TypeUser = Object.assign({},item)
              this.action = 0
+             this.indice = index
              this.modal_type_user = true
+         },
+
+         editTypeUser(){
+            this.TypeUser.indice = this.indice
+            this.setEditTypeUser(this.TypeUser)
+            this.closeModal()
+         },
+
+         deleteConfirm(item,index){
+            this.indice = index
+            this.registro_delete = item.name
+            this.modal_delete = true
+         },
+
+         deleteTypeUser(){
+            this.setDeleteTypeUser(this.indice)
+            this.modal_delete = false
          },
 
          closeModal(){
              this.action = 1
             this.TypeUser.name = '', this.TypeUser.status = false
+            this.indice = null
             this.modal_type_user = false
+         },
+
+         closeModalDelete(){
+            this.modal_delete = false
+            this.registro_delete = ''
          }
      },
 }

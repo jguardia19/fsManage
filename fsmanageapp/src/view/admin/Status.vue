@@ -1,6 +1,7 @@
 <template>
    <v-row class="mt-8 px-5"> 
         <v-col cols="12">
+            {{Categorys}}
 
                     <!-- modal for status -->
             <v-dialog v-model="modal_status" max-width="600">
@@ -71,14 +72,14 @@
                                 <v-btn class="primary" @click="modal_status = true" >ADD New +</v-btn>
                             </v-toolbar>
                     </template>
-                    <template v-slot:item.Nombre="{ item }">
+                    <template v-slot:[`item.Nombre`] = {item} >
                         <v-chip :style="{background: item.color, color:'#fff'}"  label>{{item.name}} </v-chip>   
                     </template>
-                    <template v-slot:item.estado="{ item }">
+                    <template v-slot:[`item.estado`] = {item} >
                         <v-chip color="success" v-if="item.status === true" label>Active</v-chip> 
                         <v-chip color="error" v-else label>Inactive</v-chip>     
                     </template>
-                    <template v-slot:item.actions="{ item }">
+                    <template v-slot:[`item.actions`] = {item} >
                            <v-tooltip bottom >
                                     <template v-slot:activator="{ on, attrs }">
                                         <v-btn icon color="gray" @click="editedItem(item)" v-bind="attrs" v-on="on"><v-icon>mdi-border-color</v-icon> </v-btn>
@@ -99,6 +100,7 @@
 
 <script>
 import axios from 'axios';
+import {mapState} from 'vuex';
 export default {
      data(){
          return{
@@ -130,7 +132,9 @@ export default {
      computed:{
          titleForm(){
              return this.action === 1 ? 'Create' : 'Edit'
-         }
+         },
+
+         ...mapState(['Categorys']),
      },
      mounted() {
          this.getAllStatus()

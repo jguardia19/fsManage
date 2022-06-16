@@ -18,16 +18,16 @@
                     <v-card-text>
                         <v-row class="mt-5">
                             <v-col cols="12" sm="6" md="6" class="pt-3">
-                                <v-text-field label="Nombre del cliente:" type="text" outlined v-model="cliente.Name"></v-text-field>
+                                <v-text-field label="Nombre del cliente:" type="text" outlined v-model="cliente.name"></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="6" class="pt-3">
-                                <v-text-field label="Cedula:" type="text" outlined v-model="cliente.rif"></v-text-field>
+                                <v-text-field label="Cedula:" type="text" outlined v-model="cliente.cedula"></v-text-field>
                             </v-col>
                              <v-col cols="12" sm="6" md="6" class="pt-3">
                                 <v-text-field label="Telefono:" type="text" outlined v-model="cliente.phone"></v-text-field>
                             </v-col>
                              <v-col cols="12" sm="6" md="6" class="pt-3">
-                                <v-text-field label="Dirección:" type="text" outlined v-model="cliente.direccion"></v-text-field>
+                                <v-text-field label="Dirección:" type="text" outlined v-model="cliente.adress"></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="6">
                                 <span>Status:</span>
@@ -48,7 +48,7 @@
                         <v-row>
                             <v-col cols="12" class="text-right">
                                 <v-btn class="gray" v-if="this.action != 1">EDIT</v-btn>
-                                <v-btn class="gray" @click="addNewcliente" v-else>ADD</v-btn>
+                                <v-btn class="gray" @click="createCliente" v-else>ADD</v-btn>
                             </v-col>
                         </v-row>
                     </v-card-text>
@@ -58,7 +58,7 @@
             <!-- table of data -->
              <v-data-table 
                 :headers="headers" 
-                :items="Clientes" 
+                :items="clientes" 
                 :footer-props="{'items-per-page-options':[5,10, 15, 30, 50, -1]}"
                 :options="options"
                 class="elevation-6" 
@@ -72,11 +72,11 @@
                                 <v-btn class="grey" @click="modal_cliente = true" >ADD New +</v-btn>
                             </v-toolbar>
                     </template>
-                    <template v-slot:item.estado="{ item }">
+                    <template v-slot:[`item.estado`]= {item}>
                         <v-chip color="success" v-if="item.status === true" label>Active</v-chip> 
                         <v-chip color="error" v-else label>Inactive</v-chip>     
                     </template>
-                    <template v-slot:item.actions="{ item }">
+                    <template v-slot:[`item.actions`]= {item}>
                            <v-tooltip bottom >
                                     <template v-slot:activator="{ on, attrs }">
                                         <v-btn icon color="gray" @click="editedItem(item)" v-bind="attrs" v-on="on"><v-icon>mdi-border-color</v-icon> </v-btn>
@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import {mapState} from 'vuex'
+import {mapMutations, mapState} from 'vuex'
 export default {
      data(){
          return{
@@ -105,25 +105,25 @@ export default {
                 },
             headers: [ 
                 {text:'#',value: 'id',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Name",value: 'Name',align: 'center', class:'grey white--text px-0 mx-0'},
+                { text:"Name",value: 'name',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text:"Cedula",value: 'cedula',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Direccion",value: 'direccion',align: 'center', class:'grey white--text px-0 mx-0'},
+                { text:"Direccion",value: 'adress',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text:"Telefono",value: 'phone',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text:"status",value: 'estado',align: 'center', class:'grey white--text px-0 mx-0'},
                 { text: 'Actions', value: 'actions',  align: 'center', class:'grey white--text px-0 mx-0'}
             ],
             search:'',
-
-
             modal_cliente:false,
+            indice:null,
             action:1,
 
             cliente:{
-                Name:'',
-                rif:'',
+                id:'',
+                name:'',
+                cedula:'',
                 phone:'',
-                direccion:'',
-                fecha:'',
+                adress:'',
+                fecha_created:'',
                 status:false
             }
          }
@@ -131,41 +131,51 @@ export default {
 
      computed:{
          titleForm(){
-             return this.action === 1 ? 'Create' : 'Edit'
+             return this.action === 1 ? 'Crear' : 'Editar'
          },
 
-         ...mapState(['Clientes'])
+         ...mapState('clientes',['clientes']),
+
      },
 
      methods: {
-         addNewcliente(){
-             let dateActual = new Date()
-             let day = dateActual.getDay()
-             let month = dateActual.getMonth()
-             let year  = dateActual.getFullYear()
-             day  = ('0' + day).slice(-2);
-             month   = ('0' + month).slice(-2);
-             let Fecha  = `${year}-${month}-${day}`; 
-             console.log(Fecha)
 
-             this.closeModal()
+        ...mapMutations('clientes',['addNewCliente']),
+
+        NumerRandom(min, max) {
+            return Math.floor((Math.random() * (max - min + 1)) + min);
+        },
+
+         async createCliente(){
+            this.cliente.id = await this.NumerRandom(10,100)
+            let date = new Date();
+            let output = String(date.getDate()).padStart(2, '0') + '/' + String(date.getMonth() + 1).padStart(2, '0') + '/' + date.getFullYear();
+            this.cliente.fecha_created = output
+            this.addNewCliente(this.cliente)
+            this.closeModal()
          },
 
-         editedItem(item){
+         editedItem(item,index){
              this.cliente = Object.assign({},item)
+             this.indice = index
              this.action = 0
              this.modal_cliente = true
          },
 
          closeModal(){
              this.action = 1
-            this.cliente.Name = '', this.cliente.status = false
+            this.cliente.name = '', this.cliente.cedula = '', this.cliente.phone = '', this.cliente.adress = '', this.cliente.status = false
+            this.indice = null
             this.modal_cliente = false
          }
      },
 }
 </script>
 
-<style>
 
+<style lang="scss">
+    .v-application .pt-3 {
+      padding-top: 4px !important;
+      padding-bottom: 0px !important;
+    }
 </style>
