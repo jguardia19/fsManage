@@ -47,13 +47,21 @@
                         </v-row>
                         <v-row>
                             <v-col cols="12" class="text-right">
-                                <v-btn class="gray" v-if="this.action != 1">EDIT</v-btn>
+                                <v-btn class="gray" v-if="this.action != 1" @click="updateCliente">EDIT</v-btn>
                                 <v-btn class="gray" @click="createCliente" v-else>ADD</v-btn>
                             </v-col>
                         </v-row>
                     </v-card-text>
                 </v-card>
             </v-dialog>
+            
+            <!-- modal delete -->
+            <modal-delete
+            :modal="modal_delete"
+            :name_registro="registro_delete"
+            @close="closeModalDelete"
+            @delete="deleteCliente"
+            ></modal-delete>
 
             <!-- table of data -->
              <v-data-table 
@@ -76,16 +84,16 @@
                         <v-chip color="success" v-if="item.status === true" label>Active</v-chip> 
                         <v-chip color="error" v-else label>Inactive</v-chip>     
                     </template>
-                    <template v-slot:[`item.actions`]= {item}>
+                    <template v-slot:[`item.actions`]= {item,index}>
                            <v-tooltip bottom >
                                     <template v-slot:activator="{ on, attrs }">
-                                        <v-btn icon color="gray" @click="editedItem(item)" v-bind="attrs" v-on="on"><v-icon>mdi-border-color</v-icon> </v-btn>
+                                        <v-btn icon color="gray" @click="editedItem(item,index)" v-bind="attrs" v-on="on"><v-icon>mdi-border-color</v-icon> </v-btn>
                                     </template>
                                     <span>Edit</span>
                             </v-tooltip>
                              <v-tooltip bottom >
                                     <template v-slot:activator="{ on, attrs }">
-                                         <v-btn icon color="gray" v-bind="attrs" v-on="on"><v-icon>mdi-delete-forever</v-icon> </v-btn>
+                                         <v-btn icon color="gray" v-bind="attrs" v-on="on" @click="deleteConfirm(item,index)"><v-icon>mdi-delete-forever</v-icon> </v-btn>
                                     </template>
                                     <span>Delete</span>
                             </v-tooltip>
@@ -97,7 +105,9 @@
 
 <script>
 import {mapMutations, mapState} from 'vuex'
+import ModalDelete from '../components/ModalDelete.vue'
 export default {
+  components: { ModalDelete },
      data(){
          return{
                 options: {
@@ -114,6 +124,8 @@ export default {
             ],
             search:'',
             modal_cliente:false,
+            modal_delete:false,
+            registro_delete:'',
             indice:null,
             action:1,
 
@@ -140,7 +152,7 @@ export default {
 
      methods: {
 
-        ...mapMutations('clientes',['addNewCliente']),
+        ...mapMutations('clientes',['addNewCliente','setEditCliente','setDeleteCliente']),
 
         NumerRandom(min, max) {
             return Math.floor((Math.random() * (max - min + 1)) + min);
@@ -162,11 +174,34 @@ export default {
              this.modal_cliente = true
          },
 
+         updateCliente(){
+            this.cliente.indice = this.indice
+            this.setEditCliente(this.cliente)
+            this.closeModal()
+         },
+
+         
+        deleteConfirm(item,index){
+            this.indice = index
+            this.registro_delete = item.name
+            this.modal_delete = true
+         },
+
+         deleteCliente(){
+            this.setDeleteCliente(this.indice)
+            this.modal_delete = false
+         },
+
          closeModal(){
              this.action = 1
             this.cliente.name = '', this.cliente.cedula = '', this.cliente.phone = '', this.cliente.adress = '', this.cliente.status = false
             this.indice = null
             this.modal_cliente = false
+         },
+
+        closeModalDelete(){
+            this.modal_delete = false
+            this.registro_delete = ''
          }
      },
 }

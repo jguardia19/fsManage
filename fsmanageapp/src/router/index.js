@@ -93,12 +93,28 @@ Vue.use(Router)
         component: () => import('../view/Productos.vue')
       },
       {
+        path:'/producto/create',
+        name:'productosCreate',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/CreateProducto.vue')
+      },
+      {
         path:'/ventas',
         name:'ventas',
         meta:{
           layout : 'dasboard-layout'
         },
         component: () => import('../view/Ventas.vue')
+      },
+      {
+        path:'/ventas/create',
+        name:'ventas/create',
+        meta:{
+          layout : 'dasboard-layout'
+        },
+        component: () => import('../view/CreateVenta.vue')
       },
       {
         path:'/gastos',

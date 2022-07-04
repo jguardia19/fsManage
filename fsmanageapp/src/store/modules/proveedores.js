@@ -2,7 +2,11 @@ export default {
     namespaced:true,
 
     state:{
-        proveedores:[],
+        proveedores:[
+            {id:1,name:"Tiendas charo c.a",rif:"j-54785123",adress:"calle boyaca, caracas",phone:"4245871523",status:true,fecha_created:"20-05-2022"},
+            {id:2,name:"store marifer s.a",rif:"j-45874123",adress:"av. bolivar , maracay",phone:"4125874156",status:true,fecha_created:"15-08-2022"},
+            {id:3,name:"jennmifer store",rif:"j-745869665",adress:"av. caracas con suarez",phone:"416854744115",status:false,fecha_created:"15-02-2021"},
+        ],
     },
 
     mutations:{

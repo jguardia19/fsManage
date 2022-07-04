@@ -6,11 +6,8 @@
                 <v-card>
                     <v-card-title class="grey white--text">
                         <v-row>
-                            <v-col cols="9">
+                            <v-col cols="12">
                                 <h3> Create cliente</h3>
-                            </v-col>
-                            <v-col cols="3" class="text-right">
-                                <v-btn icon color="white" @click="modal_cliente = false"><v-icon>mdi-close-circle</v-icon> </v-btn>
                             </v-col>
                         </v-row>
                     </v-card-title>
@@ -53,16 +50,35 @@
                 </v-card>
             </v-dialog>
 
-            <!-- modal for ventas -->
-            <v-dialog v-model="modal_venta" max-width="80%">
-                <v-card>
+            <v-col cols="12">
+                <template>
+                    <v-sheet elevation="6" class="mb-3">
+                        <v-tabs
+                        background-color="primary"
+                        dark
+                        next-icon="mdi-arrow-right-bold-box-outline"
+                        prev-icon="mdi-arrow-left-bold-box-outline"
+                        show-arrows
+                        >
+                        <v-tabs-slider color="yellow"></v-tabs-slider>
+                        <v-tab
+                            v-for="(item,index,) of ventas"
+                            :key="index"
+                            :href="'#tab-' + index+1"
+                            @click="eventoPrueba(item)"
+                        >
+                            Venta {{ index +1 }}
+                        </v-tab>
+                        </v-tabs>
+                    </v-sheet>
+                    </template>
+            </v-col>
+
+            <v-card>
                     <v-card-title class="grey white--text">
                         <v-row>
-                            <v-col cols="9">
+                            <v-col cols="12">
                                 <h3> {{titleForm}} Venta</h3>
-                            </v-col>
-                            <v-col cols="3" class="text-right">
-                                <v-btn icon color="white" @click="closeModal"><v-icon>mdi-close-circle</v-icon> </v-btn>
                             </v-col>
                         </v-row>
                     </v-card-title>
@@ -227,48 +243,7 @@
                         </v-row>
                     </v-card-text>
                 </v-card>
-            </v-dialog>
 
-            <!-- table of data -->
-             <v-data-table 
-                :headers="headers" 
-                :items="ventas" 
-                :footer-props="{'items-per-page-options':[5,10, 15, 30, 50, -1]}"
-                :options="options"
-                class="elevation-6" 
-                :search="search">
-        
-                <template v-slot:top>
-                        <v-toolbar flat>
-                            <v-toolbar-title>Ventas</v-toolbar-title>
-                                <v-divider  class="mx-4" inset vertical ></v-divider>
-                                <v-spacer></v-spacer>
-                                <!-- <v-btn class="grey" @click="modal_venta = true" >ADD New +</v-btn> -->
-                                <v-btn class="grey" @click="$router.push('ventas/create')" >ADD New +</v-btn>
-                            </v-toolbar>
-                    </template>
-
-                    <template v-slot:[`item.actions`] = {item}>
-                        <v-tooltip bottom >
-                                    <template v-slot:activator="{ on, attrs }">
-                                        <v-btn icon color="gray"  v-bind="attrs" v-on="on"><v-icon>mdi-eye</v-icon> </v-btn>
-                                    </template>
-                                    <span>View</span>
-                            </v-tooltip>
-                           <v-tooltip bottom >
-                                    <template v-slot:activator="{ on, attrs }">
-                                        <v-btn icon color="gray" @click="editedItem(item)" v-bind="attrs" v-on="on"><v-icon>mdi-border-color</v-icon> </v-btn>
-                                    </template>
-                                    <span>Edit</span>
-                            </v-tooltip>
-                             <v-tooltip bottom >
-                                    <template v-slot:activator="{ on, attrs }">
-                                         <v-btn icon color="gray" v-bind="attrs" v-on="on"><v-icon>mdi-delete-forever</v-icon> </v-btn>
-                                    </template>
-                                    <span>Delete</span>
-                            </v-tooltip>
-                    </template>
-            </v-data-table>
         </v-col>
    </v-row>
 </template>
@@ -278,29 +253,13 @@ import {mapMutations, mapState} from 'vuex'
 export default {
      data(){
          return{
-            options: {
-                itemsPerPage: 10
-            },
-            headers: [ 
-                {text:'#Venta',value: 'id',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Name",value: 'Name',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Cedula",value: 'rif',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Método Pago",value: 'metodo',align: 'center', class:'grey white--text px-0 mx-0'},
-                 { text:"Total a pagar",value: 'rif',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"Telefono",value: 'phone',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text:"status",value: 'estado',align: 'center', class:'grey white--text px-0 mx-0'},
-                { text: 'Actions', value: 'actions',  align: 'center', class:'grey white--text px-0 mx-0'}
-            ],
-            search:'',
 
-
-            modal_venta:false,
             modal_cliente:false,
             action:1,
             num_cedula:'',
             cliente:[],
 
-            ventas:[],
+            marcas:[],
 
             producto:{},
             cantidad:1,
@@ -344,6 +303,8 @@ export default {
 
          ...mapState('clientes',['searchCliente','encontrado']),
 
+         ...mapState('categorys',['categorys']),
+
          ...mapState('ventas',['ventas'])
      },
 
@@ -372,6 +333,10 @@ export default {
              this.venta = Object.assign({},item)
              this.action = 0
              this.modal_venta = true
+         },
+
+         eventoPrueba(i){
+            console.log(i)
          },
 
          closeModal(){

@@ -19,38 +19,36 @@
                             <v-col cols="12" sm="7" md="7"> 
                                 <v-row class="celda">
                                     <v-col cols="6" class="mb-0 celda" >
-                                        <v-text-field label="Nombre:" type="text" outlined v-model="producto.Name"></v-text-field>
+                                        <v-text-field label="Nombre:" type="text" outlined v-model="producto.name"></v-text-field>
                                     </v-col>
                                     <v-col cols="6" class="celda" >
                                          <v-autocomplete 
                                             label="Categoria"
                                             outlined
-                                            :items="Categorys"
-                                            item-text="Name"
-                                            v-model="producto.Category"
+                                            :items="categorys"
+                                            item-text="name"
+                                            item-value="name"
+                                            v-model="producto.category"
                                         ></v-autocomplete>
                                     </v-col>
                                 </v-row>
                                  <v-row class="celda">
-                                    <v-col cols="6" class="mb-0 celda" >
-                                         <v-autocomplete 
-                                            label="Marca"
-                                            outlined
-                                            item-text="Name"
-                                        ></v-autocomplete>
+                                    <v-col cols="6" >
+                                           <v-text-field label="Marca:" type="text" outlined v-model="producto.marca" ></v-text-field>
                                     </v-col>
-                                    <v-col cols="6" class="celda" >
-                                           <v-text-field label="Modelo:" type="text" outlined ></v-text-field>
+                                    <v-col cols="6">
+                                           <v-text-field label="Modelo:" type="text" outlined v-model="producto.modelo" ></v-text-field>
                                     </v-col>
                                 </v-row>
                                 <v-row class="celda">
                                     <v-col cols="6" >
                                         <v-autocomplete 
-                                            label="Proveedores"
+                                            label="Proveedor"
                                             outlined
-                                            :items="Proveedores"
-                                            item-text="Name"
-                                            v-model="producto.Proveedor"
+                                            :items="proveedores"
+                                            item-text="name"
+                                            item-value="name"
+                                            v-model="producto.proveedor"
                                             @change="verificarProveedor(producto.Proveedor)"
                                         ></v-autocomplete>
                                     </v-col>
@@ -178,12 +176,11 @@
                 </v-card>
             </v-dialog>
 
-            
-
+        
             <!-- table of data -->
              <v-data-table 
                 :headers="headers" 
-                :items="Productos" 
+                :items="productos" 
                 :footer-props="{'items-per-page-options':[5,10, 15, 30, 50, -1]}"
                 :options="options"
                 class="elevation-6" 
@@ -194,7 +191,7 @@
                             <v-toolbar-title>Productos</v-toolbar-title>
                                 <v-divider  class="mx-4" inset vertical ></v-divider>
                                 <v-spacer></v-spacer>
-                                <v-row>
+                                <v-row class="mt-2">
                                      <v-col>
                                         <v-text-field  label="Buscar" outlined v-model="search" append-icon="mdi-search"></v-text-field>
                                     </v-col>
@@ -202,41 +199,46 @@
                                         <v-autocomplete 
                                         label="Categoria"
                                         outlined
-                                        :items="Categorys"
-                                        item-text="Name"
+                                        :items="categorys"
+                                        item-text="name"
+                                        item-value="name"
+                                        v-model="category"
+                                        @change="filtrarCategoria(category)"
                                         ></v-autocomplete>
                                     </v-col>
                                     <v-col>
                                         <v-autocomplete 
                                         label="Proveedores"
                                         outlined
-                                        :items="Proveedores"
-                                        item-text="Name"
+                                        :items="proveedores"
+                                        item-text="name"
+                                        item-value="name"
                                         ></v-autocomplete>
                                     </v-col>
                                     <v-col class="text-right pt-5">
-                                         <v-btn class="grey" @click="modal_producto = true" >ADD New +</v-btn>
+                                          <v-btn class="grey" @click="$router.push('/producto/create')" >ADD New +</v-btn> 
+                                          <!-- <v-btn class="grey" @click="modal_producto = true" >ADD New +</v-btn> -->
                                     </v-col>
                                 </v-row>
                                 
                             </v-toolbar>
                     </template>
-                     <template v-slot:item.img="{ item }" class="text-center">
+                     <template v-slot:[`item.img`] = {item} class="text-center">
                          <div style="width:100%" class="text-center">
-                            <v-img :src="item.url" max-height="50" max-width="50" class="mt-1 mb-1"></v-img>
+                            <v-img :src="item.url_img" max-height="50" max-width="50" class="mt-1 mb-1"></v-img>
                          </div>
                     </template>
-                     <template v-slot:item.pcosto="{ item }" class="text-center">
+                     <template v-slot:[`item.pcosto`] = {item} class="text-center">
                         <span class="info--text">{{item.precioCompra}}$</span>
                     </template>
-                      <template v-slot:item.pventa="{ item }" class="text-center">
+                      <template v-slot:[`item.pventa`] = {item} class="text-center">
                         <span class="success--text">{{item.precioVenta}}$</span>
                     </template>
-                    <template v-slot:item.estado="{ item }">
+                    <template v-slot:[`item.estado`] = {item}>
                         <v-chip color="success" v-if="item.status === true" label>Active</v-chip> 
                         <v-chip color="error" v-else label>Inactive</v-chip>     
                     </template>
-                    <template v-slot:item.actions="{ item }">
+                    <template v-slot:[`item.actions`] = {item}>
                            <v-tooltip bottom class="mx-0 px-0">
                                     <template v-slot:activator="{ on, attrs }">
                                         <v-btn icon color="gray" @click="editedItem(item)" v-bind="attrs" v-on="on"><v-icon>mdi-border-color</v-icon> </v-btn>
@@ -256,7 +258,7 @@
 </template>
 
 <script>
-import {mapState} from 'vuex'
+import {mapMutations, mapState} from 'vuex'
 export default {
      data(){
          return{
@@ -264,11 +266,11 @@ export default {
                  itemsPerPage: 10
                 },
             headers: [ 
-                { text:"Name",value: 'Name',align:'center', class:'grey white--text px-0 mx-0'},
+                { text:"Name",value: 'name',align:'center', class:'grey white--text px-0 mx-0'},
                 { text:"Image",value: 'img',align:'center', class:'grey white--text text-center px-0 mx-0'},
                 { text:"stock",value: 'stock',align:'center', class:'grey white--text px-0 mx-0'},
-                { text:"Categoria",value: 'Category',align:'center', class:'grey white--text px-0 mx-0'},
-                { text:"Proveedor",value: 'Proveedor',align:'center', class:'grey white--text px-0 mx-0'},
+                { text:"Categoria",value: 'category',align:'center', class:'grey white--text px-0 mx-0'},
+                { text:"Proveedor",value: 'proveedor',align:'center', class:'grey white--text px-0 mx-0'},
                 { text:"P. Costo",value: 'pcosto',align:'center', class:'grey white--text px-0 mx-0'},
                 { text:"P. Venta",value: 'pventa',align:'center', class:'grey white--text px-0 mx-0'},
                 { text:"Oferta",value: 'oferta',align:'center', class:'grey white--text px-0 mx-0'},
@@ -280,6 +282,7 @@ export default {
 
             modal_producto:false,
             modal_proveedor:false,
+            category:'',
             action:1,
             img_temp:'',
             fileImg:{},
@@ -287,13 +290,14 @@ export default {
             caracteristica:'',
 
             producto:{
-                Name:'',
-                Category:'',
-                Proveedor:'',
+                name:'',
+                category:'',
+                proveedor:'',
                 stock:0,
                 precioCompra:0,
                 precioVenta:0,
-                fecha:'',
+                fecha_created:'',
+                url_img:'',
                 caracteristicas:[],
                 status:false
             }
@@ -306,16 +310,22 @@ export default {
              return this.action === 1 ? 'Create' : 'Edit'
          },
 
-         ...mapState(['Proveedores','Productos','Categorys'])
+         ...mapState('productos',['productos']),
+         ...mapState('categorys',['categorys']),
+         ...mapState('proveedores',['proveedores']),
      },
      
 
      methods: {
-
+        ...mapMutations('productos',['setFilterProductsCategory']),
          calcularPrecioVenta(e){
             let monto = e.target.value
             let precioProducto = parseInt(monto)
             this.producto.precioVenta = precioProducto + (precioProducto*30/100)
+         },
+
+         filtrarCategoria(categoria){
+            this.setFilterProductsCategory(categoria)
          },
 
         onFileChange(e) {

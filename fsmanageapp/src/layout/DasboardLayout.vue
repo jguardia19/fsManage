@@ -118,9 +118,26 @@
       </v-navigation-drawer>
 
     <v-app-bar app>
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer" ></v-app-bar-nav-icon>
 
       <v-toolbar-title>fsManage</v-toolbar-title>
+         <v-badge
+            v-if="ventas.length > 0"
+            color="indigo"
+            :content="ventas.length.toString()"
+            class="icon-sales"
+          > 
+          <v-btn icon color="indigo"  @click="eventonuevo">
+            <v-icon color="indigo" >mdi-point-of-sale</v-icon> 
+          </v-btn>
+        </v-badge>
+        <v-btn icon color="indigo"  @click="eventonuevo" v-else class="icon-sales">
+            <v-icon color="indigo" >mdi-point-of-sale</v-icon> 
+        </v-btn>
+<!-- 
+        <v-card class="ventas px-5 py-5" elevation="4" width="250">
+           <p>Lista</p>
+        </v-card> -->
     </v-app-bar>
 
     <v-main>
@@ -130,11 +147,22 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
 export default {
     data(){
         return{
              drawer: null
         }
+    },
+
+    computed:{
+      ...mapState('ventas',['ventas']),
+    },
+
+    methods:{
+       eventonuevo(){
+         console.log('accediendo al badge');
+       }
     }
 }
 </script>
@@ -152,6 +180,23 @@ export default {
        height: 100px;
        border-radius: 50%;
      }
+  }
+  .icon-sales{
+    position: absolute !important;
+    right: 30px;
+    z-index: 10 !important;
+    cursor: pointer;
+  }
+
+  .v-badge__wrapper {
+      left: -10px !important;
+      top: 12px !important;
+  }
+
+  .ventas{
+    position: absolute !important;
+    right: 5px !important;
+    top: 60px !important;
   }
 
 </style>

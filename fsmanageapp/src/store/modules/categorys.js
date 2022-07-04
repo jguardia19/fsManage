@@ -5,7 +5,15 @@ export default {
 
 
     state:{
-        categorys:[],
+        categorys:[
+                {id:1,name:"Franelas",fecha_created:"2021-05-18",status:true},
+                {id:2,name:"Camisas",fecha_created:"2021-05-08",status:true},
+                {id:3,name:"Pantalones",fecha_created:'2021-05-18',status:false},
+                {id:4,name:"Perfumes",fecha_created:'2021-05-18',status:true},
+                {id:5,name:"Cinturones",fecha_created:'2021-05-18',status:true},
+                {id:6,name:"Zapatos",fecha_created:'2021-05-18',status:true}
+
+        ],
     },
 
     mutations:{
